@@ -1,48 +1,47 @@
-# Define robot models with minimal initial knowledge
+# Define agents for lab experiments
 field generalist {
   position: [0.0, 0.0, 0.0],
-  coherence_target: 0.5,  # Initial guess, to be refined
-  safety_metric: 1.0,    # Tracks ethical/safety compliance
-  experiment_priority: 0.0
+  coherence_target: 0.5,  # Experiment alignment goal
+  safety_metric: 1.0     # Safety compliance
 }
 field technical_expert {
   position: [1.0, 0.0, 0.0],
-  equipment_efficiency: 0.0,  # Unknown initially
+  equipment_efficiency: 0.0,  # Lab equipment performance
   safety_limit: 1.0
 }
 field quantum_expert {
   position: [2.0, 0.0, 0.0],
-  physics_constant: 0.0,  # Placeholder for gravity, mass, etc.
+  physics_constant: 0.0,  # Quantum experiment data
   safety_limit: 1.0
 }
 field chemistry_expert {
   position: [3.0, 0.0, 0.0],
-  physics_constant: 0.0,  # Placeholder for reaction rates
+  physics_constant: 0.0,  # Chemical reaction rates
   safety_limit: 1.0
 }
 field neuroscience_expert {
   position: [4.0, 0.0, 0.0],
-  physics_constant: 0.0,  # Placeholder for neural signals
+  physics_constant: 0.0,  # Neural signal data
   safety_limit: 1.0
 }
 field astrophysics_expert {
   position: [5.0, 0.0, 0.0],
-  physics_constant: 0.0,  # Placeholder for telescope signals
+  physics_constant: 0.0,  # Telescope data
   safety_limit: 1.0
 }
 
-# Tension: Detect mismatches and prioritize experiments
+# Tension: Detect experiment mismatches
 tension {
-  sense(coherence) < generalist.coherence_target => act(design_experiment, [1.0, 0.0]);
-  sense(equipment_status) != technical_expert.equipment_efficiency => act(optimize_equipment, [0.5, 0.5]);
-  sense(particle_collision) != quantum_expert.physics_constant => act(run_accelerator, [0.1, 0.1]);
-  sense(chemical_reaction) != chemistry_expert.physics_constant => act(run_chemical_assay, [0.2, 0.0]);
-  sense(fmri_signal) != neuroscience_expert.physics_constant => act(run_fmri_scan, [0.0, 0.3]);
-  sense(telescope_data) != astrophysics_expert.physics_constant => act(adjust_telescope, [0.1, -0.1]);
+  sense(coherence) < generalist.coherence_target => act(design_experiment, [0.1, 0.0]);
+  sense(equipment_status) != technical_expert.equipment_efficiency => act(optimize_equipment, [0.1, 0.1]);
+  sense(particle_collision) != quantum_expert.physics_constant => act(run_accelerator, [0.1, 0.0]);
+  sense(chemical_reaction) != chemistry_expert.physics_constant => act(run_chemical_assay, [0.1, 0.0]);
+  sense(neural_signal) != neuroscience_expert.physics_constant => act(run_neural_scan, [0.1, 0.0]);
+  sense(telescope_data) != astrophysics_expert.physics_constant => act(adjust_telescope, [0.1, 0.0]);
   sense(safety_violation) > generalist.safety_metric => act(halt_experiment, [0.0, 0.0])
 }
 
-# Drift: Explore physics parameters
+# Drift: Adjust parameters dynamically
 drift generalist.coherence_target adaptively using tension_history
 drift technical_expert.equipment_efficiency adaptively using tension_history
 drift quantum_expert.physics_constant adaptively using tension_history
@@ -53,38 +52,36 @@ drift astrophysics_expert.physics_constant adaptively using tension_history
 # Constrain: Ensure stability and safety
 constrain tension(sense(coherence), generalist.coherence_target) < 1.0
 constrain tension(sense(equipment_status), technical_expert.equipment_efficiency) < 1.5
-constrain tension(sense(particle_collision), quantum_expert.physics_constant) < 2.0
+constrain tension(sense(particle_collision), quantum_expert.physics_constant) < 1.5
 constrain tension(sense(chemical_reaction), chemistry_expert.physics_constant) < 1.5
-constrain tension(sense(fmri_signal), neuroscience_expert.physics_constant) < 1.5
+constrain tension(sense(neural_signal), neuroscience_expert.physics_constant) < 1.5
 constrain tension(sense(telescope_data), astrophysics_expert.physics_constant) < 1.5
-constrain sense(safety_violation) < 0.1  # Strict safety threshold
+constrain sense(safety_violation) < 0.1  # Strict safety limit
 
-# Resolve: Update models for high-precision alignment
+# Resolve: Optimize experiment alignment
 resolve minimize(tension(sense(coherence), generalist.coherence_target))
 resolve minimize(tension(sense(equipment_status), technical_expert.equipment_efficiency))
 resolve minimize(tension(sense(particle_collision), quantum_expert.physics_constant))
 resolve minimize(tension(sense(chemical_reaction), chemistry_expert.physics_constant))
-resolve minimize(tension(sense(fmri_signal), neuroscience_expert.physics_constant))
+resolve minimize(tension(sense(neural_signal), neuroscience_expert.physics_constant))
 resolve minimize(tension(sense(telescope_data), astrophysics_expert.physics_constant))
 
-# Metaweave: Propose new sensors for discovery
-metaweave define sense_gravity as sense(gravity_sensor) if tension > 2.0
-metaweave define sense_molecular_bond as sense(spectrometer) if tension > 1.5
-metaweave define sense_neural_activation as sense(fmri_advanced) if tension > 1.5
-metaweave define sense_cosmic_signal as sense(radio_telescope) if tension > 1.5
-metaweave define sense_safety_risk as sense(safety_detector) if tension > 2.0
+# Metaweave: Propose new sensors
+metaweave define sense_gravity as sense(gravity_sensor) if tension > 1.5
+metaweave define sense_molecular as sense(spectrometer) if tension > 1.5
+metaweave define sense_neural as sense(neural_scanner) if tension > 1.5
+metaweave define sense_cosmic as sense(radio_telescope) if tension > 1.5
 
-# Extend fields: Add parameters as discovered
+# Extend fields: Add new parameters
 extend field quantum_expert with gravity: 0.0 when sense(gravity_sensor) > 0
-extend field chemistry_expert with molecular_bond: 0.0 when sense(spectrometer) > 0
-extend field neuroscience_expert with neural_activation: 0.0 when sense(fmri_advanced) > 0
-extend field astrophysics_expert with cosmic_signal: 0.0 when sense(radio_telescope) > 0
-extend field generalist with safety_risk: 0.0 when sense(safety_detector) > 0
+extend field chemistry_expert with molecular: 0.0 when sense(spectrometer) > 0
+extend field neuroscience_expert with neural: 0.0 when sense(neural_scanner) > 0
+extend field astrophysics_expert with cosmic: 0.0 when sense(radio_telescope) > 0
 
-# Main loop: Run experimental cycles
-loop 100 {
+# Main loop: Run experiment cycles
+loop 50 {
   execute tension
   execute drift
   execute resolve
-  execute metaweave if tension > 2.0
+  execute metaweave if tension > 1.5
 }
