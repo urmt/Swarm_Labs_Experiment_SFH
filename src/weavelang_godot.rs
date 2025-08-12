@@ -1,41 +1,31 @@
-use godot::prelude::*;
+use gdnative::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
-
-// Assume interpreter.rs exports these
 use crate::interpreter::{parse_weave, execute_tension, execute_drift, execute_resolve, execute_metaweave};
 
-struct WeaveLangExtension;
-
-#[gdextension]
-unsafe impl ExtensionLibrary for WeaveLangExtension {}
-
-#[derive(GodotClass)]
-#[class(base=RefCounted)]
-struct WeaveLang {
+#[derive(NativeClass)]
+#[inherit(RefCounted)]
+#[user_data(gdnative::export::user_data::MutexData<WeaveLang>)]
+pub struct WeaveLang {
     fields: HashMap<String, HashMap<String, f32>>,
     tension_history: Vec<f32>,
 }
 
-#[godot_api]
-impl RefCountedVirtual for WeaveLang {
-    fn init(_base: Base<RefCounted>) -> Self {
+#[methods]
+impl WeaveLang {
+    fn new(_owner: &RefCounted) -> Self {
         WeaveLang {
             fields: HashMap::new(),
             tension_history: Vec::new(),
         }
     }
-}
 
-#[godot_api]
-impl WeaveLang {
-    #[func]
-    fn load_weave(&mut self, path: GString) -> bool {
-        let path_str = path.to_string();
-        match parse_weave(Path::new(&path_str)) {
+    #[method]
+    fn load_weave(&mut self, path: String) -> bool {
+        match parse_weave(Path::new(&path)) {
             Ok(parsed_fields) => {
                 self.fields = parsed_fields;
-                godot_print!("Loaded Weave file: {}", path_str);
+                godot_print!("Loaded Weave file: {}", path);
                 true
             }
             Err(e) => {
@@ -45,12 +35,12 @@ impl WeaveLang {
         }
     }
 
-    #[func]
+    #[method]
     fn execute_tension(&mut self, sensor_data: Dictionary) -> f32 {
         let mut sensors: HashMap<String, f32> = HashMap::new();
-        for (key, value) in sensor_data.iter() {
-            if let Ok(key_str) = key.try_to::<String>() {
-                if let Ok(val_f32) = value.try_to::<f32>() {
+        for (key, value) in sensor_data.iter_shared() {
+            if let Some(key_str) = key.to_string() {
+                if let Some(val_f32) = value.to_f32() {
                     sensors.insert(key_str, val_f32);
                 }
             }
@@ -60,16 +50,16 @@ impl WeaveLang {
         tension
     }
 
-    #[func]
+    #[method]
     fn execute_drift(&mut self, agent_data: Dictionary, tension: f32) {
         let mut agents: HashMap<String, HashMap<String, f32>> = HashMap::new();
-        for (agent_name, props) in agent_data.iter() {
-            if let Ok(name) = agent_name.try_to::<String>() {
-                if let Ok(props_dict) = props.try_to::<Dictionary>() {
+        for (agent_name, props) in agent_data.iter_shared() {
+            if let Some(name) = agent_name.to_string() {
+                if let Some(props_dict) = props.cast::<Dictionary>() {
                     let mut props_map: HashMap<String, f32> = HashMap::new();
-                    for (prop, val) in props_dict.iter() {
-                        if let Ok(prop_str) = prop.try_to::<String>() {
-                            if let Ok(val_f32) = val.try_to::<f32>() {
+                    for (prop, val) in props_dict.iter_shared() {
+                        if let Some(prop_str) = prop.to_string() {
+                            if let Some(val_f32) = val.to_f32() {
                                 props_map.insert(prop_str, val_f32);
                             }
                         }
@@ -82,22 +72,22 @@ impl WeaveLang {
         for (name, props) in agents.iter() {
             let mut dict = Dictionary::new();
             for (prop, val) in props {
-                dict.set(prop, *val);
+                dict.insert(prop, *val);
             }
-            agent_data.set(name, dict);
+            agent_data.insert(name, dict);
         }
     }
 
-    #[func]
+    #[method]
     fn execute_resolve(&mut self, agent_data: Dictionary, tension: f32) {
         let mut agents: HashMap<String, HashMap<String, f32>> = HashMap::new();
-        for (agent_name, props) in agent_data.iter() {
-            if let Ok(name) = agent_name.try_to::<String>() {
-                if let Ok(props_dict) = props.try_to::<Dictionary>() {
+        for (agent_name, props) in agent_data.iter_shared() {
+            if let Some(name) = agent_name.to_string() {
+                if let Some(props_dict) = props.cast::<Dictionary>() {
                     let mut props_map: HashMap<String, f32> = HashMap::new();
-                    for (prop, val) in props_dict.iter() {
-                        if let Ok(prop_str) = prop.try_to::<String>() {
-                            if let Ok(val_f32) = val.try_to::<f32>() {
+                    for (prop, val) in props_dict.iter_shared() {
+                        if let Some(prop_str) = prop.to_string() {
+                            if let Some(val_f32) = val.to_f32() {
                                 props_map.insert(prop_str, val_f32);
                             }
                         }
@@ -110,18 +100,18 @@ impl WeaveLang {
         for (name, props) in agents.iter() {
             let mut dict = Dictionary::new();
             for (prop, val) in props {
-                dict.set(prop, *val);
+                dict.insert(prop, *val);
             }
-            agent_data.set(name, dict);
+            agent_data.insert(name, dict);
         }
     }
 
-    #[func]
+    #[method]
     fn execute_metaweave(&mut self, sensor_data: Dictionary) {
         let mut sensors: HashMap<String, f32> = HashMap::new();
-        for (key, value) in sensor_data.iter() {
-            if let Ok(key_str) = key.try_to::<String>() {
-                if let Ok(val_f32) = value.try_to::<f32>() {
+        for (key, value) in sensor_data.iter_shared() {
+            if let Some(key_str) = key.to_string() {
+                if let Some(val_f32) = value.to_f32() {
                     sensors.insert(key_str, val_f32);
                 }
             }
@@ -129,3 +119,9 @@ impl WeaveLang {
         execute_metaweave(&mut self.fields, &sensors);
     }
 }
+
+fn init(handle: InitHandle) {
+    handle.add_class::<WeaveLang>();
+}
+
+godot_init!(init);
