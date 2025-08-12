@@ -56,6 +56,8 @@ Run:
 
 rewrite this example using the weave_labs.weave example instead of this one:
 
+rewrite this example using the weave_labs.weave example instead of this one:
+
 Example: Swarm V-Formation
 This program (swarm_v_formation.weave) coordinates three robots into a V-shape:
 
@@ -113,21 +115,6 @@ extend field: Incorporates wind_speed if wind is detected.
 ---------------
 you can reference the program and files etc. at:
 https://github.com/urmt/Swarm_Labs_Experiment_SFH/tree/main
-## Using the Neural Network in Metaweave
-The `metaweave` construct uses a neural network (`tch-rs`) to propose new primitives:
-- **Input**: Last 10 tension values.  
-- **Output**: Suggested primitive/action (e.g., `sense_wind as sense(wind_sensor)`).  
-- **Training**: Updates weights when coherence exceeds 0.5, reinforcing successful primitives.  
-- **Usage**: Trigger with `metaweave define auto as auto` for network-driven proposals.
-
-Example:
-```weavelang
-metaweave define auto as auto
-```
-Output:
-```
-Neural network proposed: sense_wind as sense(wind_sensor)
-```
 
 ## Using LLMs for WeaveLang
 LLMs (e.g., Grok, ChatGPT) can generate and debug WeaveLang code provided you give it links to the github files or upload the files that explain how it functions and how to program it.
