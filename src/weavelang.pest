@@ -1,0 +1,20 @@
+program = { (field | tension | drift | resolve | metaweave | extend | LOOP | remove)* }
+
+field = { "field" ~ ident ~ ";" }
+tension = { "tension" ~ condition ~ action ~ ";" }
+drift = { "drift" ~ ident ~ ";" }
+resolve = { "resolve" ~ sensor ~ ident ~ ";" }
+metaweave = { "metaweave" ~ ident ~ ident ~ ";" }
+extend = { "extend" ~ ident ~ ident ~ NUMBER ~ condition ~ ";" }
+LOOP = { "loop" ~ INT ~ "{" ~ program ~ "}" }
+remove = { "remove" ~ ident ~ INT ~ ";" }
+
+condition = { sensor ~ ("<" | ">") ~ ident }
+action = { ident ~ "[" ~ NUMBER ~ "," ~ NUMBER ~ "]" }
+sensor = { "light" | "proximity_sensor" }
+
+ident = { ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+INT = { "-"? ~ ASCII_DIGIT+ }
+NUMBER = { "-"? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+
+WHITESPACE = _{ " " | "\t" | "\n" | "\r\n" }
