@@ -56,7 +56,7 @@ Run:
 
 # # Example: Swarm Labs Experiment Coordination
 
-This program (`swarm_labs.weave`) coordinates six specialized agents to run scientific experiments, optimize equipment, and ensure safety across quantum physics, chemistry, neuroscience, and astrophysics:
+This program (`swarm_labs.weave`) coordinates six specialized agents to run scientific experiments, optimize equipment, and ensure safety across physics, chemistry, neuroscience, and astrophysics in order to discover the physical laws of the Godot virutal environment:  (program to leand support to the validity of the SFH theory)
 
 ```weave
 # Define robot models with minimal initial knowledge
