@@ -54,12 +54,11 @@ Run:
 - **Metaweave**: Neural network-driven creation of new primitives.  
 - **Embodied Interaction**: Via Godot’s sensors/actuators.
 
-## Example: Light-Seeking Robot
-See `examples/light_seeker.weave` (previously provided). It navigates a robot toward a light source, evolving to handle a proximity sensor.
+rewrite this example using the weave_labs.weave example instead of this one:
 
-## Example: Swarm V-Formation
-This program (`swarm_v_formation.weave`) coordinates three robots into a V-shape:
-```weavelang
+Example: Swarm V-Formation
+This program (swarm_v_formation.weave) coordinates three robots into a V-shape:
+
 field robot1 {
   position: [0.0, 0.0],
   target_distance: 1.0
@@ -100,20 +99,20 @@ loop 10 {
   execute resolve
   execute metaweave if tension > 2.0
 }
-```
 Run:
-```bash
+
 ./target/release/weavelang run examples/swarm_v_formation.weave
-```
+Explanation
+field: Defines each robot’s position and target distance.
+tension: Adjusts positions if distances deviate from target.
+drift: Explores target_distance adjustments.
+constrain: Ensures stable coordination.
+metaweave: Adds a sense_wind primitive via neural network.
+extend field: Incorporates wind_speed if wind is detected.
 
-### Explanation
-- `field`: Defines each robot’s position and target distance.  
-- `tension`: Adjusts positions if distances deviate from target.  
-- `drift`: Explores `target_distance` adjustments.  
-- `constrain`: Ensures stable coordination.  
-- `metaweave`: Adds a `sense_wind` primitive via neural network.  
-- `extend field`: Incorporates `wind_speed` if wind is detected.
-
+---------------
+you can reference the program and files etc. at:
+https://github.com/urmt/Swarm_Labs_Experiment_SFH/tree/main
 ## Using the Neural Network in Metaweave
 The `metaweave` construct uses a neural network (`tch-rs`) to propose new primitives:
 - **Input**: Last 10 tension values.  
