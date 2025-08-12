@@ -54,49 +54,96 @@ Run:
 - **Metaweave**: Neural network-driven creation of new primitives.  
 - **Embodied Interaction**: Via Godot’s sensors/actuators.
 
-# Example: Swarm Labs Triangular Formation
+# # Example: Swarm Labs Experiment Coordination
 
-## This program (`swarm_labs.weave`) coordinates three agents into a triangular formation, adjusting their positions to maintain specific distances and responding to wind:
+This program (`swarm_labs.weave`) coordinates six specialized agents to run scientific experiments, optimize equipment, and ensure safety across quantum physics, chemistry, neuroscience, and astrophysics:
 
 ```weave
-field agent1 {
-  position: [0.0, 0.0],
-  target_distance: 1.0
+# Define robot models with minimal initial knowledge
+field generalist {
+  position: [0.0, 0.0, 0.0],
+  coherence_target: 0.5,  # Initial guess, to be refined
+  safety_metric: 1.0,    # Tracks ethical/safety compliance
+  experiment_priority: 0.0
 }
-field agent2 {
-  position: [1.0, 0.5],
-  target_distance: 1.0
+field technical_expert {
+  position: [1.0, 0.0, 0.0],
+  equipment_efficiency: 0.0,  # Unknown initially
+  safety_limit: 1.0
 }
-field agent3 {
-  position: [0.5, -0.5],
-  target_distance: 1.0
+field quantum_expert {
+  position: [2.0, 0.0, 0.0],
+  physics_constant: 0.0,  # Placeholder for gravity, mass, etc.
+  safety_limit: 1.0
+}
+field chemistry_expert {
+  position: [3.0, 0.0, 0.0],
+  physics_constant: 0.0,  # Placeholder for reaction rates
+  safety_limit: 1.0
+}
+field neuroscience_expert {
+  position: [4.0, 0.0, 0.0],
+  physics_constant: 0.0,  # Placeholder for neural signals
+  safety_limit: 1.0
+}
+field astrophysics_expert {
+  position: [5.0, 0.0, 0.0],
+  physics_constant: 0.0,  # Placeholder for telescope signals
+  safety_limit: 1.0
 }
 
+# Tension: Detect mismatches and prioritize experiments
 tension {
-  sense(distance, agent1, agent2) > target_distance => act(move_toward, agent1, agent2);
-  sense(distance, agent2, agent3) > target_distance => act(move_toward, agent2, agent3);
-  sense(distance, agent3, agent1) > target_distance => act(move_toward, agent3, agent1)
+  sense(coherence) < generalist.coherence_target => act(design_experiment, [1.0, 0.0]);
+  sense(equipment_status) != technical_expert.equipment_efficiency => act(optimize_equipment, [0.5, 0.5]);
+  sense(particle_collision) != quantum_expert.physics_constant => act(run_accelerator, [0.1, 0.1]);
+  sense(chemical_reaction) != chemistry_expert.physics_constant => act(run_chemical_assay, [0.2, 0.0]);
+  sense(fmri_signal) != neuroscience_expert.physics_constant => act(run_fmri_scan, [0.0, 0.3]);
+  sense(telescope_data) != astrophysics_expert.physics_constant => act(adjust_telescope, [0.1, -0.1]);
+  sense(safety_violation) > generalist.safety_metric => act(halt_experiment, [0.0, 0.0])
 }
 
-drift agent1.target_distance adaptively using tension_history
-drift agent2.target_distance adaptively using tension_history
-drift agent3.target_distance adaptively using tension_history
+# Drift: Explore physics parameters
+drift generalist.coherence_target adaptively using tension_history
+drift technical_expert.equipment_efficiency adaptively using tension_history
+drift quantum_expert.physics_constant adaptively using tension_history
+drift chemistry_expert.physics_constant adaptively using tension_history
+drift neuroscience_expert.physics_constant adaptively using tension_history
+drift astrophysics_expert.physics_constant adaptively using tension_history
 
-constrain tension(sense(distance, agent1, agent2), agent1.target_distance) < 1.5
-constrain tension(sense(distance, agent2, agent3), agent2.target_distance) < 1.5
-constrain tension(sense(distance, agent3, agent1), agent3.target_distance) < 1.5
+# Constrain: Ensure stability and safety
+constrain tension(sense(coherence), generalist.coherence_target) < 1.0
+constrain tension(sense(equipment_status), technical_expert.equipment_efficiency) < 1.5
+constrain tension(sense(particle_collision), quantum_expert.physics_constant) < 2.0
+constrain tension(sense(chemical_reaction), chemistry_expert.physics_constant) < 1.5
+constrain tension(sense(fmri_signal), neuroscience_expert.physics_constant) < 1.5
+constrain tension(sense(telescope_data), astrophysics_expert.physics_constant) < 1.5
+constrain sense(safety_violation) < 0.1  # Strict safety threshold
 
-resolve minimize(tension(sense(distance, agent1, agent2), agent1.target_distance))
-resolve minimize(tension(sense(distance, agent2, agent3), agent2.target_distance))
-resolve minimize(tension(sense(distance, agent3, agent1), agent3.target_distance))
+# Resolve: Update models for high-precision alignment
+resolve minimize(tension(sense(coherence), generalist.coherence_target))
+resolve minimize(tension(sense(equipment_status), technical_expert.equipment_efficiency))
+resolve minimize(tension(sense(particle_collision), quantum_expert.physics_constant))
+resolve minimize(tension(sense(chemical_reaction), chemistry_expert.physics_constant))
+resolve minimize(tension(sense(fmri_signal), neuroscience_expert.physics_constant))
+resolve minimize(tension(sense(telescope_data), astrophysics_expert.physics_constant))
 
-metaweave define sense_wind as sense(wind_sensor)
+# Metaweave: Propose new sensors for discovery
+metaweave define sense_gravity as sense(gravity_sensor) if tension > 2.0
+metaweave define sense_molecular_bond as sense(spectrometer) if tension > 1.5
+metaweave define sense_neural_activation as sense(fmri_advanced) if tension > 1.5
+metaweave define sense_cosmic_signal as sense(radio_telescope) if tension > 1.5
+metaweave define sense_safety_risk as sense(safety_detector) if tension > 2.0
 
-extend field agent1 with wind_speed: 0.0 when sense(wind_sensor) > 0
-extend field agent2 with wind_speed: 0.0 when sense(wind_sensor) > 0
-extend field agent3 with wind_speed: 0.0 when sense(wind_sensor) > 0
+# Extend fields: Add parameters as discovered
+extend field quantum_expert with gravity: 0.0 when sense(gravity_sensor) > 0
+extend field chemistry_expert with molecular_bond: 0.0 when sense(spectrometer) > 0
+extend field neuroscience_expert with neural_activation: 0.0 when sense(fmri_advanced) > 0
+extend field astrophysics_expert with cosmic_signal: 0.0 when sense(radio_telescope) > 0
+extend field generalist with safety_risk: 0.0 when sense(safety_detector) > 0
 
-loop 10 {
+# Main loop: Run experimental cycles
+loop 100 {
   execute tension
   execute drift
   execute resolve
@@ -110,13 +157,15 @@ loop 10 {
 ```
 
 ## Explanation
-- **field**: Defines each agent’s starting position and target distance (1.0 unit) for the triangular formation.
-- **tension**: Moves agents closer if their distance exceeds the target distance, forming a triangle (agent1 to agent2, agent2 to agent3, agent3 to agent1).
-- **drift**: Adjusts each agent’s `target_distance` dynamically based on past tension data to optimize the formation.
-- **constrain**: Keeps the tension (distance deviation) below 1.5 units for stable coordination.
-- **metaweave**: Defines a `sense_wind` primitive using a neural network to detect wind conditions.
-- **extend field**: Adds a `wind_speed` property to each agent if wind is detected (via `wind_sensor`).
-- **loop**: Runs the tension, drift, resolve, and metaweave steps 10 times, applying metaweave only if tension exceeds 2.0.
+This example shows how to use WeaveLang to coordinate a team of specialized agents for scientific experiments. Here’s what each part does:
+
+- **field**: Defines six agents (generalist, technical_expert, quantum_expert, chemistry_expert, neuroscience_expert, astrophysics_expert) with initial positions and properties like `coherence_target` (for experiment alignment), `equipment_efficiency`, `physics_constant` (for field-specific data), and `safety_metric` or `safety_limit`.
+- **tension**: Checks for mismatches between sensed data (e.g., `coherence`, `equipment_status`, `particle_collision`) and each agent’s target values, triggering actions like designing experiments, optimizing equipment, or running specific tests (e.g., particle accelerator, fMRI scan). It halts experiments if safety is violated.
+- **drift**: Adjusts each agent’s target values (e.g., `coherence_target`, `physics_constant`) based on past tension data to improve experiment accuracy.
+- **constrain**: Ensures experiment stability by keeping tension below thresholds (e.g., 1.0 for coherence, 2.0 for particle collisions) and safety violations below 0.1.
+- **metaweave**: Proposes new sensors (e.g., `gravity_sensor`, `spectrometer`) when tension is high, enabling discovery of new phenomena.
+- **extend field**: Adds new properties (e.g., `gravity`, `molecular_bond`) to agents when new sensors detect data, enhancing their capabilities.
+- **loop**: Runs 100 cycles of tension checks, parameter adjustments, resolution, and metaweave (if tension > 2.0) to refine experiments.
 
 # LLM Prompting Tips
 - Specify sensors/actuators: “Use distance and wind sensors.”  
