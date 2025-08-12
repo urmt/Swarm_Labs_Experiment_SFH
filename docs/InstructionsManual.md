@@ -54,46 +54,47 @@ Run:
 - **Metaweave**: Neural network-driven creation of new primitives.  
 - **Embodied Interaction**: Via Godot’s sensors/actuators.
 
-rewrite this example using the weave_labs.weave example instead of this one:
+# Example: Swarm Labs Triangular Formation
 
-rewrite this example using the weave_labs.weave example instead of this one:
+## This program (`swarm_labs.weave`) coordinates three agents into a triangular formation, adjusting their positions to maintain specific distances and responding to wind:
 
-Example: Swarm V-Formation
-This program (swarm_v_formation.weave) coordinates three robots into a V-shape:
-
-field robot1 {
+```weave
+field agent1 {
   position: [0.0, 0.0],
   target_distance: 1.0
 }
-field robot2 {
+field agent2 {
   position: [1.0, 0.5],
   target_distance: 1.0
 }
-field robot3 {
-  position: [1.0, -0.5],
+field agent3 {
+  position: [0.5, -0.5],
   target_distance: 1.0
 }
 
 tension {
-  sense(distance, robot1, robot2) > target_distance => act(move_toward, robot1, robot2);
-  sense(distance, robot2, robot3) > target_distance => act(move_toward, robot2, robot3)
+  sense(distance, agent1, agent2) > target_distance => act(move_toward, agent1, agent2);
+  sense(distance, agent2, agent3) > target_distance => act(move_toward, agent2, agent3);
+  sense(distance, agent3, agent1) > target_distance => act(move_toward, agent3, agent1)
 }
 
-drift robot1.target_distance adaptively using tension_history
-drift robot2.target_distance adaptively using tension_history
-drift robot3.target_distance adaptively using tension_history
+drift agent1.target_distance adaptively using tension_history
+drift agent2.target_distance adaptively using tension_history
+drift agent3.target_distance adaptively using tension_history
 
-constrain tension(sense(distance, robot1, robot2), robot1.target_distance) < 1.5
-constrain tension(sense(distance, robot2, robot3), robot2.target_distance) < 1.5
+constrain tension(sense(distance, agent1, agent2), agent1.target_distance) < 1.5
+constrain tension(sense(distance, agent2, agent3), agent2.target_distance) < 1.5
+constrain tension(sense(distance, agent3, agent1), agent3.target_distance) < 1.5
 
-resolve minimize(tension(sense(distance, robot1, robot2), robot1.target_distance))
-resolve minimize(tension(sense(distance, robot2, robot3), robot2.target_distance))
+resolve minimize(tension(sense(distance, agent1, agent2), agent1.target_distance))
+resolve minimize(tension(sense(distance, agent2, agent3), agent2.target_distance))
+resolve minimize(tension(sense(distance, agent3, agent1), agent3.target_distance))
 
 metaweave define sense_wind as sense(wind_sensor)
 
-extend field robot1 with wind_speed: 0.0 when sense(wind_sensor) > 0
-extend field robot2 with wind_speed: 0.0 when sense(wind_sensor) > 0
-extend field robot3 with wind_speed: 0.0 when sense(wind_sensor) > 0
+extend field agent1 with wind_speed: 0.0 when sense(wind_sensor) > 0
+extend field agent2 with wind_speed: 0.0 when sense(wind_sensor) > 0
+extend field agent3 with wind_speed: 0.0 when sense(wind_sensor) > 0
 
 loop 10 {
   execute tension
@@ -101,39 +102,23 @@ loop 10 {
   execute resolve
   execute metaweave if tension > 2.0
 }
-Run:
+```
 
-./target/release/weavelang run examples/swarm_v_formation.weave
-Explanation
-field: Defines each robot’s position and target distance.
-tension: Adjusts positions if distances deviate from target.
-drift: Explores target_distance adjustments.
-constrain: Ensures stable coordination.
-metaweave: Adds a sense_wind primitive via neural network.
-extend field: Incorporates wind_speed if wind is detected.
+## Run:
+```bash
+./target/release/weavelang run Lab-Swarm-Test-Program/swarm_labs.weave
+```
 
----------------
-you can reference the program and files etc. at:
-https://github.com/urmt/Swarm_Labs_Experiment_SFH/tree/main
+## Explanation
+- **field**: Defines each agent’s starting position and target distance (1.0 unit) for the triangular formation.
+- **tension**: Moves agents closer if their distance exceeds the target distance, forming a triangle (agent1 to agent2, agent2 to agent3, agent3 to agent1).
+- **drift**: Adjusts each agent’s `target_distance` dynamically based on past tension data to optimize the formation.
+- **constrain**: Keeps the tension (distance deviation) below 1.5 units for stable coordination.
+- **metaweave**: Defines a `sense_wind` primitive using a neural network to detect wind conditions.
+- **extend field**: Adds a `wind_speed` property to each agent if wind is detected (via `wind_sensor`).
+- **loop**: Runs the tension, drift, resolve, and metaweave steps 10 times, applying metaweave only if tension exceeds 2.0.
 
-## Using LLMs for WeaveLang
-LLMs (e.g., Grok, ChatGPT) can generate and debug WeaveLang code provided you give it links to the github files or upload the files that explain how it functions and how to program it.
-
-### General Projects
-- **Prompt**:  
-  ```
-  Write a WeaveLang program for a robot swarm forming a grid, using tension for spacing and metaweave for new sensors.
-  ```
-- **Output**: Program with multiple `field` blocks and `metaweave` for dynamic sensors.
-
-### Specific Projects
-- **Prompt**:  
-  ```
-  Create a WeaveLang program for a robotic arm sorting objects by weight in Godot, with tension for grip strength and metaweave for color sensors. Suggest debugging if tension is high.
-  ```
-- **Output**: Program with `sense(weight)`, `act(grip)`, and debugging tips (e.g., tighten `constrain`).
-
-### LLM Prompting Tips
+# LLM Prompting Tips
 - Specify sensors/actuators: “Use distance and wind sensors.”  
 - Request evolution: “Include metaweave for new primitives.”  
 - Ask for debugging: “Provide fixes if tension exceeds 2.0.”  
