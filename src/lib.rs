@@ -1,6 +1,5 @@
 use gdnative::prelude::*;
 use gdnative::api::{Spatial, Node};
-use gdnative::core_types::{Vector3, Vector2};
 use rand::Rng;
 use std::collections::HashMap;
 
@@ -17,7 +16,7 @@ pub struct WeaveLangNative {
 impl WeaveLangNative {
     fn new(owner: &Spatial) -> Self {
         WeaveLangNative {
-            owner: owner.to_ref(),
+            owner: unsafe { owner.assume_shared() },
             world_physics: HashMap::new(),
             lab_nodes: HashMap::new(),
         }
@@ -25,10 +24,10 @@ impl WeaveLangNative {
 
     #[method]
     fn _ready(&mut self, #[base] owner: &Spatial) {
-        self.lab_nodes.insert("accelerator".to_string(), owner.get_node("Accelerator").unwrap().to_ref());
-        self.lab_nodes.insert("chemistry_lab".to_string(), owner.get_node("ChemistryLab").unwrap().to_ref());
-        self.lab_nodes.insert("observatory".to_string(), owner.get_node("Observatory").unwrap().to_ref());
-        self.lab_nodes.insert("neuroscience_lab".to_string(), owner.get_node("NeuroscienceLab").unwrap().to_ref());
+        self.lab_nodes.insert("accelerator".to_string(), owner.get_node("Accelerator").unwrap());
+        self.lab_nodes.insert("chemistry_lab".to_string(), owner.get_node("ChemistryLab").unwrap());
+        self.lab_nodes.insert("observatory".to_string(), owner.get_node("Observatory").unwrap());
+        self.lab_nodes.insert("neuroscience_lab".to_string(), owner.get_node("NeuroscienceLab").unwrap());
         self.world_physics.insert("gravity".to_string(), 9.81);
     }
 
@@ -38,6 +37,8 @@ impl WeaveLangNative {
         let risk = self.check_safety();
         if risk > 0.1 {
             godot_print!("Safety violation detected: {}", risk);
+        } else {
+            godot_print!("Coherence level: {}", coherence);
         }
     }
 
